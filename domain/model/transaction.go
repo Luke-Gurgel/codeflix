@@ -9,10 +9,10 @@ import (
 )
 
 const (
-	TransactionPending string = "pending"
+	TransactionPending   string = "pending"
 	TransactionCompleted string = "completed"
 	TransactionConfirmed string = "confirmed"
-	TransactionError string = "error"
+	TransactionError     string = "error"
 )
 
 type TransactionRepositoryInterface interface {
@@ -26,18 +26,18 @@ type Transactions struct {
 }
 
 type Transaction struct {
-	Base `valid:"required"`
-	PixKeyTo *PixKey `valid:"-"`
-	AccountFrom *Account `valid:"-"`
-	Status string `json:"status" valid:"notnull"`
-	Amount float64 `json:"amount" valid:"notnull"`
-	Description string `json:"description" valid:"notnull"`
-	CancelDescription string `json:"cancel_description" valid:"-"`
+	Base              `valid:"required"`
+	PixKeyTo          *PixKey  `valid:"-"`
+	AccountFrom       *Account `valid:"-"`
+	Status            string   `json:"status" valid:"notnull"`
+	Amount            float64  `json:"amount" valid:"notnull"`
+	Description       string   `json:"description" valid:"notnull"`
+	CancelDescription string   `json:"cancel_description" valid:"-"`
 }
 
 func (t *Transaction) isValid() error {
 	_, err := govalidator.ValidateStruct(t)
-	
+
 	if t.Amount <= 0 {
 		return errors.New("Amount must be greater than 0.")
 	}
@@ -51,26 +51,26 @@ func (t *Transaction) isValid() error {
 	}
 
 	if err != nil {
-		return err 
+		return err
 	}
-	
+
 	return nil
 }
 
 func CreateTransaction(accountFrom *Account, amount float64, pixKeyTo *PixKey, description string) (*Transaction, error) {
-	transaction := Transaction {
-		Amount: amount,
-		PixKeyTo: pixKeyTo,
+	transaction := Transaction{
+		Amount:      amount,
+		PixKeyTo:    pixKeyTo,
 		AccountFrom: accountFrom,
 		Description: description,
-		Status: TransactionPending,
+		Status:      TransactionPending,
 	}
 
 	transaction.ID = uuid.NewV4().String()
 	transaction.CreatedAt = time.Now()
 
 	err := transaction.isValid()
-	if (err != nil) {
+	if err != nil {
 		return nil, err
 	}
 
@@ -84,7 +84,8 @@ func (t *Transaction) Complete() error {
 	return err
 }
 
-func (t *Transaction) Cancel() error {
+func (t *Transaction) Cancel(description string) error {
+	t.CancelDescription = description
 	t.Status = TransactionError
 	t.UpdatedAt = time.Now()
 	err := t.isValid()

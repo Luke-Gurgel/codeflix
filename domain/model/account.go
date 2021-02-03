@@ -8,25 +8,25 @@ import (
 )
 
 type Account struct {
-	Base `valid:"required"`
-	OwnerName string `json:"owner_name" valid:"notnull"`
-	Bank *Bank `valid:"-"`
-	Number string `json:"number" valid:"notnull"`
-	PixKeys []*PixKey `valid:"-"`
+	Base      `valid:"required"`
+	OwnerName string    `json:"owner_name" valid:"notnull"`
+	Bank      *Bank     `valid:"-"`
+	Number    string    `json:"number" valid:"notnull"`
+	PixKeys   []*PixKey `valid:"-"`
 }
 
 func (account *Account) isValid() error {
-		_, err := govalidator.ValidateStruct(account)
+	_, err := govalidator.ValidateStruct(account)
 	if err != nil {
-		return err 
+		return err
 	}
 	return nil
 }
 
 func CreateAccount(bank *Bank, number string, ownerName string) (*Account, error) {
-	account := Account {
-		Bank: bank,
-		Number: number,
+	account := Account{
+		Bank:      bank,
+		Number:    number,
 		OwnerName: ownerName,
 	}
 

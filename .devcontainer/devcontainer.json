@@ -11,11 +11,21 @@
 
 	// Set *default* container specific settings.json values on container create.
 	"settings": { 
-		"terminal.integrated.shell.linux": "bash"
+		"editor.formatOnSave": true,
+		"editor.defaultFormatter": "golang.go",
+		
+		"terminal.integrated.shell.linux": "/bin/bash",
+		
+		"go.gopath": "/go",
+		"go.useLanguageServer": true,
+		"go.lintTool": "golangci-lint",
+		"go.toolsManagement.checkForUpdates": "off",
+		"go.lintFlags": ["--fast"],
+		"go.lintOnSave": "file",
 	},
 
 	// Add the IDs of extensions you want installed when the container is created.
-	"extensions": ["golang.go"]
+	"extensions": ["golang.go", "wheredoesyourmindgo.gruvbox-concoctis"]
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
