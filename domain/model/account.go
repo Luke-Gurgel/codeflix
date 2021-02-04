@@ -27,6 +27,7 @@ func (account *Account) isValid() error {
 func CreateAccount(bank *Bank, number string, ownerName string) (*Account, error) {
 	account := Account{
 		Bank:      bank,
+		BankID:    bank.ID,
 		Number:    number,
 		OwnerName: ownerName,
 	}

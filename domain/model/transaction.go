@@ -31,10 +31,14 @@ type Transaction struct {
 	AccountFromID     string   `gorm:"column:account_from_id;type:uuid;" valid:"notnull"`
 	Amount            float64  `json:"amount" gorm:"type:float" valid:"notnull"`
 	PixKeyTo          *PixKey  `valid:"-"`
-	PixKeyIdTo        string   `gorm:"column:pix_key_id_to;type:uuid;" valid:"notnull"`
+	PixKeyToID        string   `gorm:"column:pix_key_to_id;type:uuid;" valid:"notnull"`
 	Status            string   `json:"status" gorm:"type:varchar(20)" valid:"notnull"`
 	Description       string   `json:"description" gorm:"type:varchar(255)" valid:"-"`
 	CancelDescription string   `json:"cancel_description" gorm:"type:varchar(255)" valid:"-"`
+}
+
+func init() {
+	govalidator.SetFieldsRequiredByDefault(true)
 }
 
 func (t *Transaction) isValid() error {
@@ -48,7 +52,7 @@ func (t *Transaction) isValid() error {
 		return errors.New("Unknown transaction status.")
 	}
 
-	if t.PixKeyTo.ID == t.AccountFrom.ID {
+	if t.PixKeyTo.AccountID == t.AccountFromID {
 		return errors.New("Source and destination accounts must be different.")
 	}
 
@@ -59,17 +63,23 @@ func (t *Transaction) isValid() error {
 	return nil
 }
 
-func CreateTransaction(accountFrom *Account, amount float64, pixKeyTo *PixKey, description string) (*Transaction, error) {
+func CreateTransaction(accountFrom *Account, pixKeyTo *PixKey, amount float64, id string, description string) (*Transaction, error) {
 	transaction := Transaction{
-		Amount:      amount,
-		PixKeyTo:    pixKeyTo,
-		AccountFrom: accountFrom,
-		Description: description,
-		Status:      TransactionPending,
+		Amount:        amount,
+		PixKeyTo:      pixKeyTo,
+		PixKeyToID:    pixKeyTo.ID,
+		AccountFrom:   accountFrom,
+		AccountFromID: accountFrom.ID,
+		Status:        TransactionPending,
+		Description:   description,
 	}
 
-	transaction.ID = uuid.NewV4().String()
+	transaction.ID = id
 	transaction.CreatedAt = time.Now()
+
+	if id == "" {
+		transaction.ID = uuid.NewV4().String()
+	}
 
 	err := transaction.isValid()
 	if err != nil {
@@ -94,9 +104,8 @@ func (t *Transaction) Cancel(description string) error {
 	return err
 }
 
-func (t *Transaction) Confirm(description string) error {
+func (t *Transaction) Confirm() error {
 	t.Status = TransactionConfirmed
-	t.CancelDescription = description
 	t.UpdatedAt = time.Now()
 	err := t.isValid()
 	return err

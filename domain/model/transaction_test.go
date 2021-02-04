@@ -21,15 +21,15 @@ func TestModel_CreateTransaction(t *testing.T) {
 	destAccountOwnerName := "Thais"
 	destAccount, _ := model.CreateAccount(bank, destAccountNumber, destAccountOwnerName)
 
+	require.NotEqual(t, srcAccount.ID, destAccount.ID)
+
 	kind := "email"
 	key := "j@j.com"
 	pixKey, _ := model.CreatePixKey(kind, destAccount, key)
 
-	require.NotEqual(t, srcAccount.ID, destAccount.ID)
-
 	amount := 3.10
 	description := "Paying my bills yall"
-	transaction, err := model.CreateTransaction(srcAccount, amount, pixKey, description)
+	transaction, err := model.CreateTransaction(srcAccount, pixKey, amount, "", description)
 
 	require.Nil(t, err)
 	require.NotNil(t, uuid.FromStringOrNil(transaction.ID))
@@ -40,10 +40,10 @@ func TestModel_CreateTransaction(t *testing.T) {
 
 	pixKeySameAccount, _ := model.CreatePixKey(kind, srcAccount, key)
 
-	_, err = model.CreateTransaction(srcAccount, amount, pixKeySameAccount, description)
+	_, err = model.CreateTransaction(srcAccount, pixKeySameAccount, amount, "", description)
 	require.NotNil(t, err)
 
-	_, err = model.CreateTransaction(srcAccount, 0, pixKey, description)
+	_, err = model.CreateTransaction(srcAccount, pixKey, 0, "", description)
 	require.NotNil(t, err)
 }
 
@@ -66,7 +66,7 @@ func TestModel_ChangeTransactionStatus(t *testing.T) {
 
 	amount := 3.10
 	description := "Paying my bills yall"
-	transaction, _ := model.CreateTransaction(srcAccount, amount, pixKey, description)
+	transaction, _ := model.CreateTransaction(srcAccount, pixKey, amount, "", description)
 
 	_ = transaction.Complete()
 	require.Equal(t, transaction.Status, model.TransactionCompleted)
