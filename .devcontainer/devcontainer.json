@@ -25,7 +25,11 @@
 	},
 
 	// Add the IDs of extensions you want installed when the container is created.
-	"extensions": ["golang.go", "wheredoesyourmindgo.gruvbox-concoctis"]
+	"extensions": [
+		"golang.go", 
+		"zxh404.vscode-proto3",
+		"wheredoesyourmindgo.gruvbox-concoctis"
+	]
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
