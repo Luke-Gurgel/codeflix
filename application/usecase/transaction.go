@@ -1,4 +1,4 @@
-package app
+package usecase
 
 import (
 	"github.com/Luke-Gurgel/codeflix/domain/model"
@@ -20,7 +20,7 @@ func (t *TransactionUseCase) Register(accountID string, amount float64, pixKeyTo
 		return nil, err
 	}
 
-	transaction, err := model.CreateTransaction(account, amount, pixKey, description)
+	transaction, err := model.CreateTransaction(account, pixKey, amount, "", description)
 	if err != nil {
 		return nil, err
 	}

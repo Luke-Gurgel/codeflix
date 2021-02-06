@@ -1,4 +1,4 @@
-package app
+package usecase
 
 import (
 	"github.com/Luke-Gurgel/codeflix/domain/model"
