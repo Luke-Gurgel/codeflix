@@ -1,0 +1,58 @@
+/*
+Copyright © 2021 NAME HERE <EMAIL ADDRESS>
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+package cmd
+
+import (
+	"os"
+
+	"github.com/Luke-Gurgel/codeflix/application/kafka"
+	"github.com/Luke-Gurgel/codeflix/infra/db"
+	ckafka "github.com/confluentinc/confluent-kafka-go/kafka"
+	"github.com/spf13/cobra"
+)
+
+// kafkaCmd represents the kafka command
+var kafkaCmd = &cobra.Command{
+	Use:   "kafka",
+	Short: "Start producing and consuming transactions using apache kafka.",
+	Run: func(cmd *cobra.Command, args []string) {
+		deliveryChannel := make(chan ckafka.Event)
+		producer := kafka.CreateKafkaProducer()
+		// kafka.Publish("olar gente", "topictest", producer, deliveryChannel)
+
+		// kafka.DeliveryReport() runs indefinitely, so invoke it in a "goroutine",
+		// which is a lightweight thread that's managed by Go.
+		go kafka.DeliveryReport(deliveryChannel)
+
+		database := db.ConnectDB(os.Getenv("env"))
+		kafkaProcessor := kafka.CreateKafkaProcessor(database, producer, deliveryChannel)
+		kafkaProcessor.Consume()
+	},
+}
+
+func init() {
+	rootCmd.AddCommand(kafkaCmd)
+
+	// Here you will define your flags and configuration settings.
+
+	// Cobra supports Persistent Flags which will work for this command
+	// and all subcommands, e.g.:
+	// kafkaCmd.PersistentFlags().String("foo", "", "A help for foo")
+
+	// Cobra supports local flags which will only run when this command
+	// is called directly, e.g.:
+	// kafkaCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+}
